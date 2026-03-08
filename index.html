@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alex Bravo Charmes — Sales Planning & Digital Transformation</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #050810;
+      --surface:  rgba(8, 12, 28, 0.82);
+      --card:     rgba(10, 16, 36, 0.88);
+      --border:   rgba(59, 130, 246, 0.18);
+      --accent:   #3b82f6;
+      --accent2:  #06b6d4;
+      --accent3:  #8b5cf6;
+      --green:    #10b981;
+      --text:     #e2e8f0;
+      --muted:    #64748b;
+      --white:    #ffffff;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ─── CANVAS ─── */
+    #bg {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    /* ─── CONTENT LAYER ─── */
+    #content { position: relative; z-index: 1; }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.1rem 6%;
+      background: rgba(5, 8, 16, 0.7);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+      transition: padding 0.3s;
+    }
+    .nav-brand {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--white); }
+
+    /* ─── SECTIONS ─── */
+    section {
+      padding: 7rem 6%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    #hero {
+      min-height: 100vh;
+      padding-top: 8rem;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    section:not(#hero) {
+      background: var(--surface);
+      backdrop-filter: blur(28px);
+      border-top: 1px solid var(--border);
+      min-height: auto;
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+    .section-title {
+      font-size: clamp(1.9rem, 3.5vw, 2.9rem);
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 0.5rem;
+    }
+    .section-title .hi {
+      background: linear-gradient(135deg, var(--accent2), var(--accent3));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* ─── HERO ─── */
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.38rem 1rem;
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.3);
+      border-radius: 999px;
+      font-size: 0.78rem;
+      color: var(--accent2);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+    }
+    .hero-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: var(--accent2);
+      border-radius: 50%;
+      animation: blink 2s infinite;
+    }
+    .hero-name {
+      font-size: clamp(3rem, 7vw, 5.5rem);
+      font-weight: 900;
+      color: var(--white);
+      letter-spacing: -0.03em;
+      line-height: 1.04;
+      margin-bottom: 0.6rem;
+    }
+    .hero-name .grad {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 45%, var(--accent3) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-role {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+    .hero-role strong { color: var(--text); }
+    .hero-location {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-bottom: 2.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 3.5rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.82rem 1.8rem;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: var(--white);
+      box-shadow: 0 0 30px rgba(59,130,246,0.35);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 50px rgba(59,130,246,0.55); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--card); border-color: rgba(59,130,246,0.4); transform: translateY(-2px); }
+
+    .hero-stats {
+      display: flex;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+    .stat { text-align: left; }
+    .stat-n {
+      font-size: 2.2rem;
+      font-weight: 900;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .stat-l { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.25rem; }
+
+    /* ─── ABOUT ─── */
+    .about-inner {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 5rem;
+      align-items: start;
+      margin-top: 3rem;
+    }
+    .about-bio p {
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.8;
+      margin-bottom: 1.2rem;
+    }
+    .about-bio p strong { color: var(--text); }
+    .about-pills { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.5rem; }
+    .pill {
+      padding: 0.3rem 0.9rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.25);
+      color: var(--accent2);
+    }
+    .about-highlights { display: flex; flex-direction: column; gap: 1rem; }
+    .highlight-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.4rem 1.6rem;
+      display: flex;
+      gap: 1.1rem;
+      align-items: flex-start;
+      transition: border-color 0.25s, transform 0.25s;
+    }
+    .highlight-card:hover { border-color: rgba(59,130,246,0.4); transform: translateX(5px); }
+    .hc-icon {
+      font-size: 1.5rem;
+      width: 46px; height: 46px;
+      min-width: 46px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hc-icon.bl { background: rgba(59,130,246,0.12); }
+    .hc-icon.cy { background: rgba(6,182,212,0.12); }
+    .hc-icon.pu { background: rgba(139,92,246,0.12); }
+    .hc-icon.gr { background: rgba(16,185,129,0.12); }
+    .hc-text h4 { font-size: 0.92rem; font-weight: 700; color: var(--white); margin-bottom: 0.2rem; }
+    .hc-text p { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+    /* ─── EXPERIENCE ─── */
+    .timeline { position: relative; margin-top: 3rem; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 18px; top: 0; bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, var(--accent), var(--accent3), transparent);
+    }
+    .tl-item {
+      padding-left: 58px;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+    .tl-dot {
+      position: absolute;
+      left: 10px; top: 6px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 12px rgba(59,130,246,0.5);
+      transition: background 0.2s;
+    }
+    .tl-dot.active { background: var(--accent); box-shadow: 0 0 20px rgba(59,130,246,0.8); }
+    .tl-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.6rem 1.8rem;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .tl-card:hover { border-color: rgba(59,130,246,0.4); box-shadow: 0 0 30px rgba(59,130,246,0.07); }
+    .tl-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.35rem;
+    }
+    .tl-role { font-size: 1rem; font-weight: 700; color: var(--white); }
+    .tl-date {
+      font-size: 0.75rem;
+      padding: 0.22rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.25);
+      color: var(--accent2);
+      white-space: nowrap;
+    }
+    .tl-company { font-size: 0.88rem; color: var(--accent); font-weight: 600; margin-bottom: 0.8rem; }
+    .tl-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.7; }
+    .tl-tags { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.9rem; }
+    .tag {
+      font-size: 0.72rem;
+      padding: 0.2rem 0.65rem;
+      border-radius: 5px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    /* ─── EDUCATION ─── */
+    .edu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.2rem;
+      margin-top: 3rem;
+    }
+    .edu-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.7rem;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .edu-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+    }
+    .edu-card:hover { transform: translateY(-4px); border-color: rgba(59,130,246,0.35); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+    .edu-degree { font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 0.4rem; line-height: 1.4; }
+    .edu-school { font-size: 0.85rem; color: var(--accent2); font-weight: 600; margin-bottom: 0.35rem; }
+    .edu-period { font-size: 0.78rem; color: var(--muted); }
+    .edu-focus { font-size: 0.78rem; color: var(--muted); margin-top: 0.6rem; font-style: italic; }
+
+    /* ─── SKILLS ─── */
+    .skills-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      margin-top: 3rem;
+    }
+    .skills-group h3 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 1.4rem;
+    }
+    .skill-item {
+      margin-bottom: 1.1rem;
+    }
+    .skill-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.45rem;
+      font-size: 0.85rem;
+    }
+    .skill-name { color: var(--text); }
+    .skill-pct { color: var(--muted); }
+    .skill-track {
+      height: 4px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .skill-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      width: 0%;
+      transition: width 1.2s cubic-bezier(0.16,1,0.3,1);
+    }
+    .competency-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+    .comp-tag {
+      padding: 0.4rem 1rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      transition: all 0.2s;
+      cursor: default;
+    }
+    .comp-tag:hover { border-color: rgba(59,130,246,0.45); color: var(--accent2); }
+
+    /* ─── LANGUAGES ─── */
+    .lang-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.2rem;
+      margin-top: 3rem;
+    }
+    .lang-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.8rem;
+      text-align: center;
+      transition: all 0.25s;
+    }
+    .lang-card:hover { transform: translateY(-4px); border-color: rgba(6,182,212,0.4); box-shadow: 0 20px 40px rgba(0,0,0,0.25); }
+    .lang-flag { font-size: 2.8rem; margin-bottom: 0.9rem; display: block; }
+    .lang-name { font-size: 1.05rem; font-weight: 800; color: var(--white); margin-bottom: 0.25rem; }
+    .lang-level {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent2);
+      margin-bottom: 1rem;
+    }
+    .lang-bar { height: 3px; background: rgba(255,255,255,0.07); border-radius: 99px; overflow: hidden; }
+    .lang-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      width: 0%;
+      transition: width 1.2s cubic-bezier(0.16,1,0.3,1);
+    }
+
+    /* ─── CONTACT ─── */
+    .contact-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      margin-top: 3rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 3.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .contact-wrapper::after {
+      content: '';
+      position: absolute;
+      top: -60%; right: -20%;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(59,130,246,0.07), transparent 70%);
+      pointer-events: none;
+    }
+    .contact-info h3 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1.25;
+      margin-bottom: 1rem;
+    }
+    .contact-info p { color: var(--muted); font-size: 0.95rem; line-height: 1.75; margin-bottom: 2rem; }
+    .contact-items { display: flex; flex-direction: column; gap: 1rem; }
+    .c-item {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.88rem;
+      transition: color 0.2s;
+    }
+    .c-item:hover { color: var(--accent2); }
+    .c-ico {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      background: rgba(59,130,246,0.1);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .contact-form { display: flex; flex-direction: column; gap: 1rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .fg { display: flex; flex-direction: column; gap: 0.4rem; }
+    .fg label { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.04em; }
+    .fg input, .fg textarea {
+      background: rgba(5,8,16,0.7);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.82rem 1rem;
+      color: var(--text);
+      font-size: 0.88rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      resize: vertical;
+    }
+    .fg input:focus, .fg textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+    }
+    .fg input::placeholder, .fg textarea::placeholder { color: var(--muted); opacity: 0.5; }
+    .fg textarea { min-height: 110px; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      text-align: center;
+      padding: 2.5rem 6%;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--muted);
+      background: var(--surface);
+      backdrop-filter: blur(20px);
+    }
+    footer span { color: var(--accent); }
+
+    /* ─── SCROLL REVEAL ─── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+
+    /* ─── ANIMATIONS ─── */
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+    .hero-badge  { animation: fadeUp 0.7s 0.1s ease both; }
+    .hero-name   { animation: fadeUp 0.7s 0.25s ease both; }
+    .hero-role   { animation: fadeUp 0.7s 0.4s ease both; }
+    .hero-location{ animation: fadeUp 0.7s 0.5s ease both; }
+    .hero-actions{ animation: fadeUp 0.7s 0.6s ease both; }
+    .hero-stats  { animation: fadeUp 0.7s 0.75s ease both; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 960px) {
+      .about-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+      .skills-layout { grid-template-columns: 1fr; }
+      .contact-wrapper { grid-template-columns: 1fr; padding: 2rem; gap: 2.5rem; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      section { padding: 5rem 5%; }
+      #hero { padding-top: 7rem; }
+      .timeline::before { left: 0; }
+      .tl-item { padding-left: 38px; }
+      .tl-dot { left: -8px; }
+      .hero-stats { gap: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<div id="content">
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-brand">Alex Bravo</div>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#education">Education</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#languages">Languages</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-badge">Open to new opportunities</div>
+    <h1 class="hero-name">Alex<br><span class="grad">Bravo Charmes</span></h1>
+    <p class="hero-role">
+      <strong>Sales Planning Officer</strong> &middot; Digital Transformation &middot; Nissan AMIEO
+    </p>
+    <p class="hero-location">&#128205; Paris, France</p>
+    <div class="hero-actions">
+      <a href="#contact" class="btn btn-primary">Get in touch &rarr;</a>
+      <a href="#experience" class="btn btn-ghost">View experience</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-n">3+</div>
+        <div class="stat-l">Years experience</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">4</div>
+        <div class="stat-l">Languages</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">2</div>
+        <div class="stat-l">Industries</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">EU</div>
+        <div class="stat-l">Market focus</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="reveal">
+      <p class="section-label">About me</p>
+      <h2 class="section-title">Where strategy<br>meets <span class="hi">data</span></h2>
+    </div>
+    <div class="about-inner">
+      <div class="about-bio reveal">
+        <p>
+          Strategic sales planning professional with <strong>3+ years of experience</strong> in automotive and FMCG industries across European markets. Proven expertise in digital transformation, cross-functional stakeholder management, and data-driven decision making.
+        </p>
+        <p>
+          Currently driving the <strong>Anaplan digital transformation project at Nissan AMIEO</strong>, leading sales planning optimization for the European region — transitioning complex Excel-based workflows into scalable, integrated systems adopted across Europe and Japan.
+        </p>
+        <p>
+          Passionate about leveraging technology and <strong>circular economy principles</strong> to drive sustainable business growth in the evolving automotive sector.
+        </p>
+        <div class="about-pills">
+          <span class="pill">Anaplan</span>
+          <span class="pill">KPI Frameworks</span>
+          <span class="pill">Nissan AMIEO</span>
+          <span class="pill">360° Brand Management</span>
+          <span class="pill">Circular Economy</span>
+          <span class="pill">Stakeholder Alignment</span>
+        </div>
+      </div>
+      <div class="about-highlights reveal">
+        <div class="highlight-card">
+          <div class="hc-icon bl">&#127759;</div>
+          <div class="hc-text">
+            <h4>European Market Expertise</h4>
+            <p>Deep commercial experience across France, Spain, Belgium — in automotive and FMCG verticals.</p>
+          </div>
+        </div>
+        <div class="highlight-card">
+          <div class="hc-icon cy">&#128202;</div>
+          <div class="hc-text">
+            <h4>Data-Driven Analytics</h4>
+            <p>Proficient with Nielsen, GfK, SAP, and Anaplan — turning raw data into strategic direction.</p>
+          </div>
+        </div>
+        <div class="highlight-card">
+          <div class="hc-icon pu">&#9881;</div>
+          <div class="hc-text">
+            <h4>Digital Transformation</h4>
+            <p>Led Anaplan implementation redesigning planning processes from legacy Excel across AMIEO regions.</p>
+          </div>
+        </div>
+        <div class="highlight-card">
+          <div class="hc-icon gr">&#9850;</div>
+          <div class="hc-text">
+            <h4>Sustainability Champion</h4>
+            <p>MSc in Circular Economy. Co-developed WESustainable Project across Western Europe South.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <div class="reveal">
+      <p class="section-label">Experience</p>
+      <h2 class="section-title">Professional <span class="hi">journey</span></h2>
+    </div>
+    <div class="timeline">
+
+      <div class="tl-item reveal">
+        <div class="tl-dot active"></div>
+        <div class="tl-card">
+          <div class="tl-head">
+            <div class="tl-role">Sales Planning Officer — Marketing &amp; Sales Europe</div>
+            <div class="tl-date">Nov 2024 &ndash; Present</div>
+          </div>
+          <div class="tl-company">Nissan Motor Corporation (AMIEO Region) &middot; Montigny-le-Bretonneux, France</div>
+          <p class="tl-desc">
+            Leading the Anaplan implementation to digitalize sales planning processes across European markets, replacing legacy Excel workflows with an integrated planning system. Designing KPI frameworks and logic models aligned with Europe &amp; Japan HQ. Automating reporting for senior management and European departments. Co-founded the iBond Team (employee wellbeing initiative) and organized an AI &amp; Microsoft Copilot workshop for 50+ employees.
+          </p>
+          <div class="tl-tags">
+            <span class="tag">Anaplan</span><span class="tag">Sales Planning</span><span class="tag">KPI Reporting</span>
+            <span class="tag">Digital Transformation</span><span class="tag">Automotive</span><span class="tag">Pan-European</span>
+            <span class="tag">AI Workshop</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <div class="tl-head">
+            <div class="tl-role">Aftersales Marketing Junior — Graduate Program</div>
+            <div class="tl-date">Dec 2023 &ndash; Nov 2024</div>
+          </div>
+          <div class="tl-company">Nissan Motor Corporation &middot; L'Hospitalet de Llobregat, Spain</div>
+          <p class="tl-desc">
+            Rotational graduate program across multiple aftersales departments. Created new reporting frameworks to align KPIs, led accessories development project implemented in 3 dealerships, and contributed to the ALPFA Project developing personalized automation campaigns including predictive maintenance notifications. Managed homologation processes and parts delivery optimization.
+          </p>
+          <div class="tl-tags">
+            <span class="tag">Aftersales</span><span class="tag">KPI Frameworks</span><span class="tag">Marketing Automation</span>
+            <span class="tag">Homologation</span><span class="tag">Supply Chain</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <div class="tl-head">
+            <div class="tl-role">Assistant Brand Manager — Adhesives Consumer Brands</div>
+            <div class="tl-date">Jan 2023 &ndash; Dec 2023</div>
+          </div>
+          <div class="tl-company">Henkel Ibérica SA &middot; Barcelona, Spain</div>
+          <p class="tl-desc">
+            Supported 360° national brand strategies for Loctite &amp; Rubson Home Adhesives. Managed point-of-sale activations and identified growth opportunities in the upcycling segment. Co-developed the <em>WESustainable Project</em> with the Italian team to promote sustainability awareness across Western Europe South. Analyzed sell-in/sell-out data to optimize inventory and retail channel performance.
+          </p>
+          <div class="tl-tags">
+            <span class="tag">360° Brand Management</span><span class="tag">POS Activation</span>
+            <span class="tag">Sell-in / Sell-out</span><span class="tag">Sustainability</span><span class="tag">FMCG</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <div class="tl-head">
+            <div class="tl-role">Sales &amp; Customer Marketing — Beauty Care</div>
+            <div class="tl-date">Jul 2022 &ndash; Dec 2022</div>
+          </div>
+          <div class="tl-company">Henkel Belgium &middot; Brussels, Belgium</div>
+          <p class="tl-desc">
+            Supported Key Account Manager across major retail accounts (Carrefour, Kruidvat, Di, Auchan). Processed Nielsen data into strategic sales arguments, assisted category development, developed promotional strategies, and identified shelf optimization opportunities using Spaceman planogram software.
+          </p>
+          <div class="tl-tags">
+            <span class="tag">Nielsen</span><span class="tag">Key Account</span><span class="tag">Category Management</span>
+            <span class="tag">Planograms</span><span class="tag">Trade Marketing</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <div class="tl-head">
+            <div class="tl-role">Community Manager — Gastronomy</div>
+            <div class="tl-date">Mar 2021 &ndash; Aug 2021</div>
+          </div>
+          <div class="tl-company">Ginesta Foodies SL &middot; Barcelona, Spain</div>
+          <p class="tl-desc">
+            Managed Facebook &amp; Instagram channels, developed content strategies and targeted social campaigns, and built analytical dashboards to monitor campaign performance and ROI.
+          </p>
+          <div class="tl-tags">
+            <span class="tag">Social Media</span><span class="tag">Content Strategy</span><span class="tag">Analytics</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EDUCATION -->
+  <section id="education">
+    <div class="reveal">
+      <p class="section-label">Education</p>
+      <h2 class="section-title">Academic <span class="hi">foundation</span></h2>
+    </div>
+    <div class="edu-grid">
+      <div class="edu-card reveal">
+        <div class="edu-degree">Master Universitario en Economía Circular y Desarrollo Sostenible</div>
+        <div class="edu-school">VIU — Universidad Internacional de Valencia</div>
+        <div class="edu-period">Apr 2024 &ndash; Apr 2025</div>
+        <div class="edu-focus">Sustainability, Circular Economy, Sustainability Reporting</div>
+      </div>
+      <div class="edu-card reveal">
+        <div class="edu-degree">Master of Business Administration (MBA) + Digital Marketing</div>
+        <div class="edu-school">thePower MBA</div>
+        <div class="edu-period">Jan 2023 &ndash; Jan 2024</div>
+        <div class="edu-focus">Business strategy, digital marketing, entrepreneurship</div>
+      </div>
+      <div class="edu-card reveal">
+        <div class="edu-degree">Bachelor's in International Business Management + Global Marketing</div>
+        <div class="edu-school">FH Dortmund &amp; ESIC Business School</div>
+        <div class="edu-period">Sep 2018 &ndash; Jul 2022</div>
+        <div class="edu-focus">Double Degree Program — Germany &amp; Spain</div>
+      </div>
+      <div class="edu-card reveal">
+        <div class="edu-degree">Baccalauréat STMG — Sciences et Technologies du Management</div>
+        <div class="edu-school">Lycée Français de Barcelone</div>
+        <div class="edu-period">2016 &ndash; 2018</div>
+        <div class="edu-focus">Management, Economics, Law</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="reveal">
+      <p class="section-label">Skills</p>
+      <h2 class="section-title">Core <span class="hi">competencies</span></h2>
+    </div>
+    <div class="skills-layout">
+      <div class="skills-group reveal">
+        <h3>Technical Proficiency</h3>
+        <div class="skill-item">
+          <div class="skill-header"><span class="skill-name">Anaplan</span><span class="skill-pct">90%</span></div>
+          <div class="skill-track"><div class="skill-fill" data-w="90"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-header"><span class="skill-name">Excel Advanced</span><span class="skill-pct">92%</span></div>
+          <div class="skill-track"><div class="skill-fill" data-w="92"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-header"><span class="skill-name">Nielsen / GfK</span><span class="skill-pct">85%</span></div>
+          <div class="skill-track"><div class="skill-fill" data-w="85"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-header"><span class="skill-name">SAP</span><span class="skill-pct">75%</span></div>
+          <div class="skill-track"><div class="skill-fill" data-w="75"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-header"><span class="skill-name">Google Analytics</span><span class="skill-pct">80%</span></div>
+          <div class="skill-track"><div class="skill-fill" data-w="80"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-header"><span class="skill-name">Mailchimp / Sprinklr</span><span class="skill-pct">78%</span></div>
+          <div class="skill-track"><div class="skill-fill" data-w="78"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-header"><span class="skill-name">Adobe Creative Suite</span><span class="skill-pct">72%</span></div>
+          <div class="skill-track"><div class="skill-fill" data-w="72"></div></div>
+        </div>
+      </div>
+      <div class="skills-group reveal">
+        <h3>Core Competencies</h3>
+        <div class="competency-cloud">
+          <span class="comp-tag">Digital Transformation</span>
+          <span class="comp-tag">Sales Forecasting</span>
+          <span class="comp-tag">Stakeholder Management</span>
+          <span class="comp-tag">Cross-functional Collaboration</span>
+          <span class="comp-tag">Market Analysis</span>
+          <span class="comp-tag">KPI Development</span>
+          <span class="comp-tag">Process Optimization</span>
+          <span class="comp-tag">Project Management</span>
+          <span class="comp-tag">Sustainability Strategy</span>
+          <span class="comp-tag">Product Planning</span>
+          <span class="comp-tag">Customer Insights</span>
+          <span class="comp-tag">Strategic Thinking</span>
+          <span class="comp-tag">Change Management</span>
+          <span class="comp-tag">AI &amp; Automation</span>
+          <span class="comp-tag">Circular Economy</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LANGUAGES -->
+  <section id="languages">
+    <div class="reveal">
+      <p class="section-label">Languages</p>
+      <h2 class="section-title">Speaking <span class="hi">four languages</span></h2>
+    </div>
+    <div class="lang-grid">
+      <div class="lang-card reveal">
+        <span class="lang-flag">&#127466;&#127480;</span>
+        <div class="lang-name">Spanish</div>
+        <div class="lang-level">Native</div>
+        <div class="lang-bar"><div class="lang-bar-fill" data-w="100"></div></div>
+      </div>
+      <div class="lang-card reveal">
+        <span class="lang-flag">&#127464;&#127462;</span>
+        <div class="lang-name">Catalan</div>
+        <div class="lang-level">Native</div>
+        <div class="lang-bar"><div class="lang-bar-fill" data-w="100"></div></div>
+      </div>
+      <div class="lang-card reveal">
+        <span class="lang-flag">&#127467;&#127479;</span>
+        <div class="lang-name">French</div>
+        <div class="lang-level">Native</div>
+        <div class="lang-bar"><div class="lang-bar-fill" data-w="100"></div></div>
+      </div>
+      <div class="lang-card reveal">
+        <span class="lang-flag">&#127468;&#127463;</span>
+        <div class="lang-name">English</div>
+        <div class="lang-level">Professional / C1</div>
+        <div class="lang-bar"><div class="lang-bar-fill" data-w="88"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="reveal">
+      <p class="section-label">Contact</p>
+      <h2 class="section-title">Let's <span class="hi">connect</span></h2>
+    </div>
+    <div class="contact-wrapper reveal">
+      <div class="contact-info">
+        <h3>Open to conversations about sales, strategy &amp; digital transformation</h3>
+        <p>Whether you're looking to collaborate, discuss European markets, or explore digital transformation initiatives — reach out, I'd love to connect.</p>
+        <div class="contact-items">
+          <a href="mailto:a.bravo.charmes@gmail.com" class="c-item">
+            <span class="c-ico">&#128140;</span>
+            a.bravo.charmes@gmail.com
+          </a>
+          <a href="tel:+33617839402" class="c-item">
+            <span class="c-ico">&#128222;</span>
+            +33 06 17 83 94 02
+          </a>
+          <span class="c-item">
+            <span class="c-ico">&#128205;</span>
+            Paris, France
+          </span>
+          <a href="https://linkedin.com" class="c-item" target="_blank">
+            <span class="c-ico">&#128101;</span>
+            LinkedIn — Alex Bravo Charmes
+          </a>
+        </div>
+      </div>
+      <form class="contact-form" onsubmit="handleForm(event)">
+        <div class="form-row">
+          <div class="fg">
+            <label>Name</label>
+            <input type="text" placeholder="Your name" required />
+          </div>
+          <div class="fg">
+            <label>Email</label>
+            <input type="email" placeholder="your@email.com" required />
+          </div>
+        </div>
+        <div class="fg">
+          <label>Subject</label>
+          <input type="text" placeholder="What's this about?" />
+        </div>
+        <div class="fg">
+          <label>Message</label>
+          <textarea placeholder="Tell me what's on your mind..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="justify-content:center;">
+          Send message &rarr;
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <footer>
+    <p>Alex Bravo Charmes &mdash; Sales Planning &amp; Digital Transformation &middot; <span>Paris, France</span> &copy; 2026</p>
+  </footer>
+
+</div><!-- end #content -->
+
+<script>
+// ─────────────────────────────────────────────
+//  THREE.JS 3D SCENE
+// ─────────────────────────────────────────────
+(function () {
+  const canvas = document.getElementById('bg');
+  const W = window.innerWidth, H = window.innerHeight;
+  const isMobile = W < 768;
+
+  // Scene
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 1000);
+  camera.position.set(0, 0, 50);
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !isMobile, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1 : 2));
+  renderer.setSize(W, H);
+  renderer.setClearColor(0x050810, 1);
+
+  // ── GALAXY PARTICLES ──
+  const COUNT = isMobile ? 4000 : 9000;
+  const pos   = new Float32Array(COUNT * 3);
+  const col   = new Float32Array(COUNT * 3);
+
+  const c1 = new THREE.Color(0x3b82f6); // blue (inner)
+  const c2 = new THREE.Color(0x8b5cf6); // purple (outer)
+  const c3 = new THREE.Color(0x06b6d4); // cyan (accent)
+
+  for (let i = 0; i < COUNT; i++) {
+    const i3 = i * 3;
+    const arm = i % 3;
+    const branchAngle = arm * (Math.PI * 2 / 3);
+    const radius = Math.random() * 75 + 2;
+    const spin   = radius * 0.28;
+    const spread = 3;
+    const rx = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * spread;
+    const ry = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * spread * 0.35;
+    const rz = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * spread;
+
+    pos[i3]     = Math.cos(branchAngle + spin) * radius + rx;
+    pos[i3 + 1] = ry;
+    pos[i3 + 2] = Math.sin(branchAngle + spin) * radius + rz;
+
+    const mc = new THREE.Color();
+    const t  = radius / 75;
+    if (Math.random() < 0.15) {
+      mc.copy(c3);
+    } else {
+      mc.lerpColors(c1, c2, t);
+    }
+    col[i3] = mc.r; col[i3 + 1] = mc.g; col[i3 + 2] = mc.b;
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('color',    new THREE.BufferAttribute(col, 3));
+
+  const mat = new THREE.PointsMaterial({
+    size: isMobile ? 0.22 : 0.18,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.92,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    sizeAttenuation: true
+  });
+
+  const galaxy = new THREE.Points(geo, mat);
+  scene.add(galaxy);
+
+  // ── AMBIENT STAR FIELD ──
+  const STARS = isMobile ? 600 : 1500;
+  const sPos  = new Float32Array(STARS * 3);
+  for (let i = 0; i < STARS; i++) {
+    sPos[i * 3]     = (Math.random() - 0.5) * 300;
+    sPos[i * 3 + 1] = (Math.random() - 0.5) * 300;
+    sPos[i * 3 + 2] = (Math.random() - 0.5) * 300;
+  }
+  const sGeo = new THREE.BufferGeometry();
+  sGeo.setAttribute('position', new THREE.BufferAttribute(sPos, 3));
+  const sMat = new THREE.PointsMaterial({
+    size: 0.12,
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0.35,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false
+  });
+  scene.add(new THREE.Points(sGeo, sMat));
+
+  // ── WIREFRAME SHAPES ──
+  function mkShape(geo, color, x, y, z, opacity = 0.22) {
+    const mat  = new THREE.MeshBasicMaterial({ color, wireframe: true, transparent: true, opacity });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x, y, z);
+    scene.add(mesh);
+    return mesh;
+  }
+
+  const torus = mkShape(
+    new THREE.TorusGeometry(5, 1.6, 20, 80),
+    0x3b82f6, 28, 8, -30, 0.18
+  );
+  const icosa = mkShape(
+    new THREE.IcosahedronGeometry(6, 0),
+    0x8b5cf6, -28, -8, -25, 0.2
+  );
+  const octa = mkShape(
+    new THREE.OctahedronGeometry(4, 0),
+    0x06b6d4, 5, 20, -35, 0.16
+  );
+  const dodeca = mkShape(
+    new THREE.DodecahedronGeometry(3.5, 0),
+    0x8b5cf6, -18, 18, -40, 0.15
+  );
+
+  // ── MOUSE ──
+  let mouseX = 0, mouseY = 0;
+  let targetX = 0, targetY = 0;
+  document.addEventListener('mousemove', e => {
+    mouseX = (e.clientX / window.innerWidth  - 0.5) * 2;
+    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  // ── SCROLL ──
+  let scrollY = 0;
+  window.addEventListener('scroll', () => { scrollY = window.scrollY; }, { passive: true });
+
+  // ── RESIZE ──
+  window.addEventListener('resize', () => {
+    const w = window.innerWidth, h = window.innerHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  });
+
+  // ── ANIMATE ──
+  const clock = new THREE.Clock();
+  function animate() {
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+
+    // Smooth mouse follow
+    targetX += (mouseX - targetX) * 0.04;
+    targetY += (mouseY - targetY) * 0.04;
+
+    // Galaxy rotation
+    galaxy.rotation.y = t * 0.04;
+    galaxy.rotation.x = Math.sin(t * 0.05) * 0.08;
+
+    // Shapes
+    torus.rotation.x  = t * 0.25;
+    torus.rotation.y  = t * 0.18;
+    icosa.rotation.x  = t * 0.12;
+    icosa.rotation.y  = t * 0.20;
+    octa.rotation.y   = t * 0.30;
+    octa.rotation.z   = t * 0.10;
+    dodeca.rotation.x = t * 0.15;
+    dodeca.rotation.z = t * 0.08;
+
+    // Camera parallax
+    camera.position.x += (targetX * 4 - camera.position.x) * 0.035;
+    camera.position.y += (-targetY * 4 - camera.position.y) * 0.035;
+    camera.position.z  = 50 - scrollY * 0.015;
+    camera.lookAt(scene.position);
+
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+
+// ─────────────────────────────────────────────
+//  SCROLL REVEAL
+// ─────────────────────────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('in');
+      // Animate skill bars
+      e.target.querySelectorAll('.skill-fill').forEach(el => {
+        el.style.width = el.dataset.w + '%';
+      });
+      // Animate language bars
+      e.target.querySelectorAll('.lang-bar-fill').forEach(el => {
+        el.style.width = el.dataset.w + '%';
+      });
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -30px 0px' });
+
+// Stagger children
+document.querySelectorAll('.about-highlights, .timeline, .edu-grid, .skills-layout, .lang-grid, .contact-wrapper')
+  .forEach(parent => {
+    parent.querySelectorAll('.reveal').forEach((el, i) => {
+      el.style.transitionDelay = `${i * 90}ms`;
+    });
+  });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ─────────────────────────────────────────────
+//  NAV ACTIVE
+// ─────────────────────────────────────────────
+const sections  = document.querySelectorAll('section[id]');
+const navLinks  = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let cur = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 140) cur = s.id; });
+  navLinks.forEach(a => {
+    a.style.color = a.getAttribute('href') === '#' + cur ? '#e2e8f0' : '';
+  });
+}, { passive: true });
+
+// ─────────────────────────────────────────────
+//  FORM
+// ─────────────────────────────────────────────
+function handleForm(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  btn.textContent = 'Message sent!';
+  btn.style.background = 'linear-gradient(135deg,#10b981,#06b6d4)';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.textContent = 'Send message \u2192';
+    btn.style.background = '';
+    btn.disabled = false;
+    e.target.reset();
+  }, 3000);
+}
+</script>
+</body>
+</html>
